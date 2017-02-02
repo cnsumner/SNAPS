@@ -1,2 +1,2 @@
 # SNAPS
-Single-cycle Accumulator-based Processor Simulator and Assembly Parser
+**S**i**n**gle-cycle **A**ccumulator-based **P**rocessor **S**imulator and assembly parser

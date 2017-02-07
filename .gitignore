@@ -30,8 +30,8 @@
 
 # misc
 build
-.ilk
-.pdb
+*.ilk
+*.pdb
 
 # VSCode
 .vscode

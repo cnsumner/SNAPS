@@ -39,10 +39,48 @@ Memory					(32 bits)*(2^32) = 137,438,953,472 bits = 17,179,869,184 bytes = 17 M
 */
 
 #include <iostream>
+#include <string>
+
+#include "parser.hpp"
+
+using std::cout;
+using std::endl;
+using std::string;
+
+int main(int argc, char *argv[])
+{
+	if (argc <= 1)
+	{
+		cout << "Please specify mode (-assemble or -run) and input file.\n";
+		cout << "EXAMPLE: snaps -assemble test.asm" << endl << endl;
+		return 0;
+	}
+
+	string flag;
+	string filename;
+
+	if (argc == 3)
+	{
+		flag = argv[1];
+		filename = argv[2];
+	} else 
+	{
+		cout << "Please specify mode (-assemble or -run) and input file.\n";
+		cout << "EXAMPLE: snaps -assemble test.asm" << endl << endl;
+		return 0;
+	}
+
+	if (flag == "-assemble")
+	{
+		Parser p = Parser(filename);
+
+        bool ok;
+
+        if (p.ok())
+            err = p.parse();
+	}
 
 
 
 
-int main() {
-	std::cout << "whaddup";
 }

@@ -30,6 +30,7 @@
 
 # misc
 build
+build.bat
 *.ilk
 *.pdb
 

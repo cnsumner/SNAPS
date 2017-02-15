@@ -14,5 +14,8 @@ class Parser
 
   public:
     Parser(string filename);
-	bool ok();
+	bool Ok();
+    int Parse();
+
+  private:
 };

@@ -28,7 +28,7 @@
 
 Instruction anatomy (bits)
 -------------------------
-[opcode(5)][Argument(27)]
+[opcode(5)][Arguments(27)]
 
 Processor anatomy
 -------------------------
@@ -74,10 +74,8 @@ int main(int argc, char *argv[])
 	{
 		Parser p = Parser(filename);
 
-        bool ok;
-
-        if (p.ok())
-            err = p.parse();
+        if (p.Ok())
+            int err = p.Parse();
 	}
 
 

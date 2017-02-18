@@ -1,12 +1,5 @@
 #include "parser.hpp"
 
-#include <regex>
-
-using std::regex;
-using std::regex_match;
-using std::ssub_match;
-using std::smatch;
-
 Parser::Parser(string filename)
 {
     ifstream file(filename);
@@ -27,22 +20,32 @@ bool Parser::Ok()
 
 int Parser::Parse()
 {
-    regex token_regex("(\\S+)\\s?", std::regex::ECMAScript);
-    smatch token_matches;
     int err = 0;
+
     for (auto instr : instructions)
     {
-		auto r = regex_match(instr, token_matches, token_regex);
-	if (regex_match(instr, token_matches, token_regex))
-	{
-		ssub_match match = token_matches[0];
-		string token = match.str();
-	}
-	else
-	{
-	    err = -1;
-	    break;
-	}
+		size_t size = instr.size();
+		for (size_t i = 0; i < size;)
+		{
+			size_t spacePos = instr.find(' ', i);
+			if (spacePos == string::npos)
+			{
+				if (i < size - 1)
+				{
+					spacePos = size;
+				} else
+				{
+					err = -1;
+					break;
+				}
+			}
+
+			string token = instr.substr(i, spacePos - i);
+
+			
+
+			i = spacePos + 1;
+		}
     }
 
     return err;

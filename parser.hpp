@@ -5,17 +5,21 @@
 #include <string>
 #include <vector>
 
+#include "program.hpp"
+
 using std::string;
 using std::vector;
 using std::ifstream;
 class Parser
 {
-    vector<string> instructions;
+public:
+  Parser(string filename, Program *&program);
+  bool ok();
+  int parse();
 
-  public:
-    Parser(string filename);
-	bool Ok();
-    int Parse();
+private:
+  vector<string> instructions;
+  Program *_program;
 
-  private:
+  int encode(string opcode, string param);
 };

@@ -72,10 +72,19 @@ int main(int argc, char *argv[])
 
 	if (flag == "-assemble")
 	{
-		Parser p = Parser(filename);
+		Program *prog = nullptr;
+		Parser p = Parser(filename, prog);
 
-        if (p.Ok())
-            int err = p.Parse();
+        if (p.ok())
+		{
+            int err = p.parse();
+
+			if (err == 0)
+			{
+				//execute program
+				//eventually save file;
+			}
+		}
 	}
 
 

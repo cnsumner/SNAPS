@@ -59,7 +59,7 @@ int Parser::parse()
 	if (tokens.size() >= 1)
 	{
 	    int instruction = encode(tokens[0], tokens[1]);
-	    _program->_instructions[count] = instruction;
+	    static_cast<int*>(_program->_instructions)[count] = instruction;
 	}
 	else
 	{

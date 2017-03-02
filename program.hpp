@@ -4,7 +4,7 @@ class Program
 {
 	public:
     int _instrCount;
-    int* _instructions;
+    void* _instructions; //void pointer because we're casting anyways
 
 	Program();
     Program(int instrCount);

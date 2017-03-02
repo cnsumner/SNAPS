@@ -42,6 +42,7 @@ Memory					(32 bits)*(2^32) = 137,438,953,472 bits = 17,179,869,184 bytes = 17 M
 #include <string>
 
 #include "parser.hpp"
+#include "processor.hpp"
 
 using std::cout;
 using std::endl;
@@ -81,13 +82,10 @@ int main(int argc, char *argv[])
 
 			if (err == 0)
 			{
+				Processor proc = Processor(prog);
 				//execute program
 				//eventually save file;
 			}
 		}
 	}
-
-
-
-
 }

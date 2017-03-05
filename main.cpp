@@ -83,7 +83,13 @@ int main(int argc, char *argv[])
 			if (err == 0)
 			{
 				Processor proc = Processor(prog);
-				//execute program
+				
+				while (true)
+				{
+					proc.step();
+					proc.info();
+				}
+
 				//eventually save file;
 			}
 		}

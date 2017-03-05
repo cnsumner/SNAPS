@@ -1,7 +1,13 @@
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #include "processor.hpp"
 
 Processor::Processor(Program *program)
 {
+    PC = 0;
+    accumulator = 0;
     _program = program;
 }
 
@@ -22,23 +28,25 @@ void Processor::execute()
 
     if (opcode == 0x00) //LOAD addr
     {
-        accumulator = _dataMemory[param];
+        accumulator = *((int*)((char*)(_program->_dataMemory) + param));
     }
     else if (opcode == 0x01) //LOADI addr
     {
-        accumulator = _dataMemory[_dataMemory[param]];
+        int addr = *((int*)((char*)(_program->_dataMemory) + param));
+        accumulator = *((int*)((char*)(_program->_dataMemory) + addr));
     }
     else if (opcode == 0x02) //STORE addr
     {
-        _dataMemory[param] = accumulator;
+        *((int*)((char*)(_program->_dataMemory) + param)) = accumulator;
     }
     else if (opcode == 0x03) //STOREI addr
     {
-        _dataMemory[_dataMemory[param]] = accumulator;
+        int addr = *((int*)((char*)(_program->_dataMemory) + param));
+        *((int*)((char*)(_program->_dataMemory) + addr)) = accumulator;
     }
     else if (opcode == 0x04) //ADD addr
     {
-        accumulator = accumulator + _dataMemory[param];
+        accumulator = accumulator + *((int*)((char*)(_program->_dataMemory) + param));
     }
     else if (opcode == 0x05) //ADDI const
     {
@@ -46,11 +54,11 @@ void Processor::execute()
     }
     else if (opcode == 0x06) //AND addr
     {
-        accumulator = accumulator & _dataMemory[param];
+        accumulator = accumulator & *((int*)((char*)(_program->_dataMemory) + param));
     }
     else if (opcode == 0x07) //OR addr
     {
-        accumulator = accumulator | _dataMemory[param];
+        accumulator = accumulator | *((int*)((char*)(_program->_dataMemory) + param));
     }
     else if (opcode == 0x08) //NOT
     {
@@ -58,7 +66,7 @@ void Processor::execute()
     }
     else if (opcode == 0x09) //XOR addr
     {
-        accumulator = accumulator ^ _dataMemory[param];
+        accumulator = accumulator ^ *((int*)((char*)(_program->_dataMemory) + param));
     }
     else if (opcode == 0x0A) //JUMP const
     {
@@ -66,56 +74,61 @@ void Processor::execute()
     }
     else if (opcode == 0x0B) //BZERO addr
     {
-        PC = (accumulator == 0 ? _dataMemory[param] : PC + 4);
+        PC = (accumulator == 0 ? *((int*)((char*)(_program->_dataMemory) + param)) : PC + 4);
         return;
     }
     else if (opcode == 0x0C) //SEQ	addr
     {
-        accumulator = (accumulator == _dataMemory[param] ? 1 : 0);
+        accumulator = (accumulator == *((int*)((char*)(_program->_dataMemory) + param)) ? 1 : 0);
     }
     else if (opcode == 0x0D) //SNE	addr
     {
-        accumulator = (accumulator != _dataMemory[param] ? 1 : 0);
+        accumulator = (accumulator != *((int*)((char*)(_program->_dataMemory) + param)) ? 1 : 0);
     }
     else if (opcode == 0x0E) //SGT	addr
     {
-        accumulator = (accumulator > _dataMemory[param] ? 1 : 0);
+        accumulator = (accumulator > *((int*)((char*)(_program->_dataMemory) + param)) ? 1 : 0);
     }
     else if (opcode == 0x0F) //SLT	addr
     {
-        accumulator = (accumulator < _dataMemory[param] ? 1 : 0);
+        accumulator = (accumulator < *((int*)((char*)(_program->_dataMemory) + param)) ? 1 : 0);
     }
     else if (opcode == 0x10) //SGE	addr
     {
-        accumulator = (accumulator >= _dataMemory[param] ? 1 : 0);
+        accumulator = (accumulator >= *((int*)((char*)(_program->_dataMemory) + param)) ? 1 : 0);
     }
     else if (opcode == 0x11) //SLE	addr
     {
-        accumulator = (accumulator <= _dataMemory[param] ? 1 : 0);
+        accumulator = (accumulator <= *((int*)((char*)(_program->_dataMemory) + param)) ? 1 : 0);
     }
     else if (opcode == 0x12) //PUSH
     {
         stackPtr -= 4;
-        _dataMemory[stackPtr] = accumulator;
+        *((int*)((char*)(_program->_dataMemory) + stackPtr)) = accumulator;
     }
     else if (opcode == 0x13) //POP
     {
-        accumulator = _dataMemory[stackPtr];
+        accumulator = *((int*)((char*)(_program->_dataMemory) + stackPtr));
         stackPtr += 4;
     }
     else if (opcode == 0x14) //CALL addr
     {
         stackPtr -= 4;
-        _dataMemory[stackPtr] = PC + 4;
-        PC = _dataMemory[param];
+        *((int*)((char*)(_program->_dataMemory) + stackPtr)) = PC + 4;
+        PC = *((int*)((char*)(_program->_dataMemory) + param));
         return;
     }
     else if (opcode == 0x15) //RET
     {
-        PC = _dataMemory[stackPtr];
+        PC = *((int*)((char*)(_program->_dataMemory) + stackPtr));
         stackPtr += 4;
         return;
     }
 
     PC += 4;
+}
+
+void Processor::info()
+{
+    cout << accumulator << endl;
 }

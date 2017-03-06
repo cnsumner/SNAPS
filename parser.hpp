@@ -13,13 +13,13 @@ using std::ifstream;
 class Parser
 {
 public:
-  Parser(string filename, Program *&program);
+  Parser(string filename);
   bool ok();
-  int parse();
+  int parse(Program &program);
 
 private:
-  vector<string> instructions;
-  Program *_program;
+  vector<string> _instructions;
+  Program _program;
 
-  int encode(string opcode, string param);
+  int encode(string mnemonic);
 };

@@ -50,48 +50,35 @@ using std::string;
 
 int main(int argc, char *argv[])
 {
-	if (argc <= 1)
+	if (argc != 2)
 	{
-		cout << "Please specify mode (-assemble or -run) and input file.\n";
-		cout << "EXAMPLE: snaps -assemble test.asm" << endl << endl;
+		cout << "Incorrect arguments. Please specify input file.\n";
+		cout << "EXAMPLE: snaps test.asm" << endl << endl;
 		return 0;
 	}
 
-	string flag;
-	string filename;
+	string filename = argv[1];
 
-	if (argc == 3)
-	{
-		flag = argv[1];
-		filename = argv[2];
-	} else 
-	{
-		cout << "Please specify mode (-assemble or -run) and input file.\n";
-		cout << "EXAMPLE: snaps -assemble test.asm" << endl << endl;
-		return 0;
-	}
+	Parser p = Parser(filename);
 
-	if (flag == "-assemble")
+	if (p.ok())
 	{
-		Program *prog = nullptr;
-		Parser p = Parser(filename, prog);
+		Program prog = Program();
+		
+		int err = p.parse(prog);
 
-        if (p.ok())
+		if (err == 0)
 		{
-            int err = p.parse();
-
-			if (err == 0)
+			Processor proc = Processor(prog);
+			
+			while (true)
 			{
-				Processor proc = Processor(prog);
-				
-				while (true)
-				{
-					proc.step();
-					proc.info();
-				}
-
-				//eventually save file;
+				proc.step();
+				proc.info();
 			}
 		}
+	} else
+	{
+		cout << "Error opening file." << endl;
 	}
 }

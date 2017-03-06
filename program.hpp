@@ -1,14 +1,22 @@
 #pragma once
 
+#include <vector>
+using std::vector;
+#include <string>
+using std::string;
+
+struct Instruction
+{
+  string mnemonic;
+  int opcode;
+  int param;
+};
+
 class Program
 {
-	public:
-    int _instrCount;
-    void* _instructions; //void pointer because we're casting anyways
-	void* _dataMemory;
+  public:
+    vector<Instruction> _instructions;
+    vector<int> _dataMemory;
 
-	Program();
-    Program(int instrCount);
-
-	private:
+    Program();
 };

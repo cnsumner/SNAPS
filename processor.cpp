@@ -1,6 +1,14 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <iomanip>
+using std::hex;
+using std::setfill;
+using std::setw;
+using std::left;
+#include <sstream>
+using std::stringstream;
+
 
 #include "processor.hpp"
 
@@ -69,6 +77,7 @@ void Processor::execute()
     }
     else if (opcode == 0x0A) //JUMP const
     {
+        //TODO: implement this
         //PC = _labels[param];
     }
     else if (opcode == 0x0B) //BZERO addr
@@ -129,5 +138,19 @@ void Processor::execute()
 
 void Processor::info()
 {
-    cout << accumulator << endl;
+    cout << "|-------------------------|" << endl;
+    cout << "| PC: " << setfill(' ') << left << setw(19) << PC << " |" << endl;
+    cout << "|-------------------------|" << endl;
+    cout << "| Accumulator: 0x" << setfill ('0') << setw(sizeof(int)*2) << hex << accumulator << " |" << endl;
+    cout << "|-------------------------|" << endl;
+    
+    int prevInstructions = (PC > 2 ? PC - 3 : 0);
+    int futureInstructions = (prevInstructions + 6 < _program._instructions.size() ? prevInstructions + 6 : _program._instructions.size() - 1);
+
+    for (int i = prevInstructions; i <= futureInstructions; ++i)
+    {
+        Instruction instr = _program._instructions[i];
+        cout << (i == PC ? "|* " : "|  ") << setfill(' ') << left << setw(6) << instr.mnemonic << " 0x" << setfill ('0') << setw(sizeof(int)*2) << hex << instr.param << "      |" << endl;
+    }
+    cout << "|-------------------------|" << endl;
 }

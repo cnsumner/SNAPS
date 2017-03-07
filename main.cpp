@@ -45,6 +45,7 @@ Memory					(32 bits)*(2^32) = 137,438,953,472 bits = 17,179,869,184 bytes = 17 M
 #include "processor.hpp"
 
 using std::cout;
+using std::cin;
 using std::endl;
 using std::string;
 
@@ -70,11 +71,14 @@ int main(int argc, char *argv[])
 		if (err == 0)
 		{
 			Processor proc = Processor(prog);
+			proc.info();
+			cout << endl;
 			
 			while (true)
 			{
 				proc.step();
 				proc.info();
+				cout << endl;
 			}
 		}
 	} else

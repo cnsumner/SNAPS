@@ -4,6 +4,8 @@
 using std::vector;
 #include <string>
 using std::string;
+#include <map>
+using std::map;
 
 struct Instruction
 {
@@ -17,6 +19,8 @@ class Program
   public:
     vector<Instruction> _instructions;
     vector<int> _dataMemory;
+    int _endOfMemory;
+    map<string, int> _labels;
 
     Program();
 };

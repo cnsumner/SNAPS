@@ -35,7 +35,7 @@ int Parser::parse(Program &program)
 			size_t spacePos = instr.find(' ', i);
 			if (spacePos == string::npos)
 			{
-				if (i < size - 1)
+				if (i < size)
 				{
 					spacePos = size;
 				}
@@ -55,8 +55,27 @@ int Parser::parse(Program &program)
 
 		if (tokens.size() >= 1)
 		{
-			Instruction instruction = {tokens[0], encode(tokens[0]), strtol(tokens[1].c_str(), NULL, 16)};
-			program._instructions.push_back(instruction);
+			int opcode = encode(tokens[0]);
+
+			if (opcode == 0x16)
+			{
+				program._labels[tokens[1]] = program._endOfMemory;
+
+				for (int i = 2; i < tokens.size(); ++i)
+				{
+					program._dataMemory[program._endOfMemory] = strtol(tokens[i].c_str(), NULL, 16);
+					program._endOfMemory++;
+				}
+			} else if (opcode == 0x17)
+			{
+				Instruction instruction = {tokens[0], opcode, 0};
+				program._instructions.push_back(instruction);
+				program._labels[tokens[0]] = program._instructions.size() - 1;
+			} else
+			{
+				Instruction instruction = {tokens[0], opcode, strtol(tokens[1].c_str(), NULL, 16)};
+				program._instructions.push_back(instruction);
+			}			
 		}
 		else
 		{
@@ -118,6 +137,10 @@ int Parser::encode(string mnemonic)
 	opcode = 0x14;
     else if (mnemonic == "RET")
 	opcode = 0x15;
+	else if (mnemonic == "ARRAY")
+	opcode = 0x16;
+	else
+	opcode = 0x17;
 
     return opcode;
 }

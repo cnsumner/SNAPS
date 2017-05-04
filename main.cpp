@@ -79,6 +79,8 @@ int main(int argc, char *argv[])
 				proc.step();
 				proc.info();
 				cout << endl;
+				cout << "Press enter to step..." << endl;
+				cin.get();
 			}
 		}
 	} else

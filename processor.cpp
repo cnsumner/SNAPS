@@ -2,10 +2,12 @@
 using std::cout;
 using std::endl;
 #include <iomanip>
+using std::dec;
 using std::hex;
 using std::setfill;
 using std::setw;
 using std::left;
+using std::right;
 #include <sstream>
 using std::stringstream;
 
@@ -14,8 +16,12 @@ using std::stringstream;
 
 Processor::Processor(Program &program)
 {
+    complete_ = false;
     PC = 0;
+    stackPtr = 1027; //start stack at end of memory
     accumulator = 0;
+    stack = vector<int>(1028, 0);
+    cycleCount = 0;
     _program = program;
 }
 
@@ -69,7 +75,7 @@ void Processor::execute()
     }
     else if (opcode == 0x08) //NOT
     {
-        accumulator = !accumulator;
+        accumulator = ~accumulator;
     }
     else if (opcode == 0x09) //XOR addr
     {
@@ -78,11 +84,11 @@ void Processor::execute()
     else if (opcode == 0x0A) //JUMP const
     {
         //TODO: implement this
-        //PC = _labels[param];
+        PC = param;
     }
     else if (opcode == 0x0B) //BZERO addr
     {
-        PC = (accumulator == 0 ? _program._dataMemory[param] : PC + 1); //PC + 4
+        PC = (accumulator == 0 ? param : PC + 1); //PC + 4
         return;
     }
     else if (opcode == 0x0C) //SEQ	addr
@@ -112,36 +118,46 @@ void Processor::execute()
     else if (opcode == 0x12) //PUSH
     {
         stackPtr--; //stackPtr - 4
-        _program._dataMemory[stackPtr] = accumulator;
+        stack[stackPtr] = accumulator;
     }
     else if (opcode == 0x13) //POP
     {
-        accumulator = _program._dataMemory[stackPtr];
+        accumulator = stack[stackPtr];
         stackPtr++; //stackPtr + 4
     }
     else if (opcode == 0x14) //CALL addr
     {
         stackPtr -= 4;
-        _program._dataMemory[stackPtr] = PC + 1; //PC + 4
-        PC = _program._dataMemory[param];
+        stack[stackPtr] = PC + 1; //PC + 4
+        PC = param;
         return;
     }
     else if (opcode == 0x15) //RET
     {
-        PC = _program._dataMemory[stackPtr];
+        PC = stack[stackPtr];
         stackPtr++; //stackPtr + 4
         return;
     }
+    else if (opcode == 0x17)
+    {
+        if (_program._instructions[PC].mnemonic == "exit")
+            complete_ = true;
+    }
 
     PC++; //PC + 4
+    
+    if (opcode != 0x17)
+        cycleCount++;
 }
 
 void Processor::info()
 {
     cout << "|-------------------------|" << endl;
-    cout << "| PC: " << setfill(' ') << left << setw(19) << PC << " |" << endl;
+    cout << "| PC: " << setfill(' ') << left << setw(19) << dec << PC << " |" << endl;
     cout << "|-------------------------|" << endl;
-    cout << "| Accumulator: 0x" << setfill ('0') << setw(sizeof(int)*2) << hex << accumulator << " |" << endl;
+    cout << "| Stack ptr: " << setfill(' ') << left << setw(12) << hex << stackPtr << " |" << endl;
+    cout << "|-------------------------|" << endl;
+    cout << "| Accumulator: 0x" << right << setw(sizeof(int)*2) << setfill('0') << hex << accumulator << " |" << endl;
     cout << "|-------------------------|" << endl;
     
     int prevInstructions = (PC > 2 ? PC - 3 : 0);
@@ -150,7 +166,14 @@ void Processor::info()
     for (int i = prevInstructions; i <= futureInstructions; ++i)
     {
         Instruction instr = _program._instructions[i];
-        cout << (i == PC ? "|* " : "|  ") << setfill(' ') << left << setw(6) << instr.mnemonic << " 0x" << setfill ('0') << setw(sizeof(int)*2) << hex << instr.param << "      |" << endl;
+        cout << (i == PC ? "|* " : "|  ") << setfill(' ') << left << setw(7) << instr.mnemonic << " 0x" << right << setfill('0') << setw(sizeof(int)*2) << hex << instr.param << "     |" << endl;
     }
     cout << "|-------------------------|" << endl;
+    cout << "| Cycles: " << left << setw(15) << setfill(' ') << dec << cycleCount << " |" << endl;
+    cout << "|-------------------------|" << endl;
+}
+
+bool Processor::complete()
+{
+    return complete_;
 }

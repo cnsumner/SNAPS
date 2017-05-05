@@ -19,7 +19,6 @@ public:
 
 private:
   vector<string> _instructions;
-  Program _program;
 
   int encode(string mnemonic);
 };

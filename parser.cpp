@@ -56,8 +56,13 @@ int Parser::parse(Program &program)
 		if (tokens.size() >= 1)
 		{
 			int opcode = encode(tokens[0]);
-
-			if (opcode == 0x16)
+			
+			if (opcode == 0x0A || opcode == 0x0B || opcode == 0x14) //jump, bzero, call
+			{
+				Instruction instruction = {tokens[0], opcode, program._labels[tokens[1]]};
+				program._instructions.push_back(instruction);
+			}
+			else if (opcode == 0x16) //array
 			{
 				program._labels[tokens[1]] = program._endOfMemory;
 
@@ -66,12 +71,19 @@ int Parser::parse(Program &program)
 					program._dataMemory[program._endOfMemory] = strtol(tokens[i].c_str(), NULL, 16);
 					program._endOfMemory++;
 				}
-			} else if (opcode == 0x17)
+			}
+			else if (opcode == 0x17) //label
 			{
 				Instruction instruction = {tokens[0], opcode, 0};
 				program._instructions.push_back(instruction);
 				program._labels[tokens[0]] = program._instructions.size() - 1;
-			} else
+			}
+            else if (opcode == 0x08 || opcode == 0x12 || opcode == 0x13 || opcode == 0x15)
+            {
+                Instruction instruction = {tokens[0], opcode, 0};
+				program._instructions.push_back(instruction);
+            }
+			else
 			{
 				Instruction instruction = {tokens[0], opcode, strtol(tokens[1].c_str(), NULL, 16)};
 				program._instructions.push_back(instruction);
@@ -94,53 +106,53 @@ int Parser::encode(string mnemonic)
     int opcode = 100; //if we ever see opcode 100 elsewhere, we have problems
 
     if (mnemonic == "LOAD")
-	opcode = 0x00;
+        opcode = 0x00;
     else if (mnemonic == "LOADI")
-	opcode = 0x01;
+        opcode = 0x01;
     else if (mnemonic == "STORE")
-	opcode = 0x02;
+        opcode = 0x02;
     else if (mnemonic == "STOREI")
-	opcode = 0x03;
+        opcode = 0x03;
     else if (mnemonic == "ADD")
-	opcode = 0x04;
+        opcode = 0x04;
     else if (mnemonic == "ADDI")
-	opcode = 0x05;
+        opcode = 0x05;
     else if (mnemonic == "AND")
-	opcode = 0x06;
+        opcode = 0x06;
     else if (mnemonic == "OR")
-	opcode = 0x07;
+        opcode = 0x07;
     else if (mnemonic == "NOT")
-	opcode = 0x08;
+        opcode = 0x08;
     else if (mnemonic == "XOR")
-	opcode = 0x09;
+        opcode = 0x09;
     else if (mnemonic == "JUMP")
-	opcode = 0x0A;
+        opcode = 0x0A;
     else if (mnemonic == "BZERO")
-	opcode = 0x0B;
+        opcode = 0x0B;
     else if (mnemonic == "SEQ")
-	opcode = 0x0C;
+        opcode = 0x0C;
     else if (mnemonic == "SNE")
-	opcode = 0x0D;
+        opcode = 0x0D;
     else if (mnemonic == "SGT")
-	opcode = 0x0E;
+        opcode = 0x0E;
     else if (mnemonic == "SLT")
-	opcode = 0x0F;
+        opcode = 0x0F;
     else if (mnemonic == "SGE")
-	opcode = 0x10;
+        opcode = 0x10;
     else if (mnemonic == "SLE")
-	opcode = 0x11;
+        opcode = 0x11;
     else if (mnemonic == "PUSH")
-	opcode = 0x12;
+        opcode = 0x12;
     else if (mnemonic == "POP")
-	opcode = 0x13;
+        opcode = 0x13;
     else if (mnemonic == "CALL")
-	opcode = 0x14;
+        opcode = 0x14;
     else if (mnemonic == "RET")
-	opcode = 0x15;
-	else if (mnemonic == "ARRAY")
-	opcode = 0x16;
-	else
-	opcode = 0x17;
+        opcode = 0x15;
+    else if (mnemonic == "ARRAY")
+        opcode = 0x16;
+    else
+        opcode = 0x17;
 
     return opcode;
 }

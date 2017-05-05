@@ -17,7 +17,7 @@ using std::stringstream;
 Processor::Processor(Program &program)
 {
     complete_ = false;
-    PC = 0;
+    PC = program._entryPoint;
     stackPtr = 1027; //start stack at end of memory
     accumulator = 0;
     stack = vector<int>(1028, 0);
@@ -127,7 +127,7 @@ void Processor::execute()
     }
     else if (opcode == 0x14) //CALL addr
     {
-        stackPtr -= 4;
+        stackPtr--;
         stack[stackPtr] = PC + 1; //PC + 4
         PC = param;
         return;
@@ -155,9 +155,9 @@ void Processor::info()
     cout << "|-------------------------|" << endl;
     cout << "| PC: " << setfill(' ') << left << setw(19) << dec << PC << " |" << endl;
     cout << "|-------------------------|" << endl;
-    cout << "| Stack ptr: " << setfill(' ') << left << setw(12) << hex << stackPtr << " |" << endl;
+    cout << "| Stack ptr: " << setfill(' ') << left << setw(12) << dec << stackPtr << " |" << endl;
     cout << "|-------------------------|" << endl;
-    cout << "| Accumulator: 0x" << right << setw(sizeof(int)*2) << setfill('0') << hex << accumulator << " |" << endl;
+    cout << "| Accumulator: " << left << setw(sizeof(int)*2 + 2) << setfill(' ') << dec << accumulator << " |" << endl;
     cout << "|-------------------------|" << endl;
     
     int prevInstructions = (PC > 2 ? PC - 3 : 0);
@@ -166,7 +166,7 @@ void Processor::info()
     for (int i = prevInstructions; i <= futureInstructions; ++i)
     {
         Instruction instr = _program._instructions[i];
-        cout << (i == PC ? "|* " : "|  ") << setfill(' ') << left << setw(7) << instr.mnemonic << " 0x" << right << setfill('0') << setw(sizeof(int)*2) << hex << instr.param << "     |" << endl;
+        cout << (i == PC ? "|* " : "|  ") << setfill(' ') << left << setw(7) << instr.mnemonic << " " << left << setfill(' ') << setw(sizeof(int)*2 + 2) << dec << instr.param << "     |" << endl;
     }
     cout << "|-------------------------|" << endl;
     cout << "| Cycles: " << left << setw(15) << setfill(' ') << dec << cycleCount << " |" << endl;

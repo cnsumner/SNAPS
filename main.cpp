@@ -80,14 +80,12 @@ int main(int argc, char *argv[])
 		if (err == 0)
 		{
 			Processor proc = Processor(prog);
-			proc.info();
 			cout << endl;
 
 			int run = 1;
 			
 			while (!proc.complete())
 			{
-				proc.step();
 				if (debug)
 				{
 					run--;
@@ -104,6 +102,7 @@ int main(int argc, char *argv[])
 					if (s.size() > 0)
 						run = atoi(s.c_str());
 				}
+				proc.step();
 			}
 
 			proc.info();

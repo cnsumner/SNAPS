@@ -1,6 +1,7 @@
 #include "parser.hpp"
 
 #include <stdlib.h>
+#include <regex>
 
 Parser::Parser(string filename)
 {
@@ -10,7 +11,8 @@ Parser::Parser(string filename)
     {
 	for (string s; getline(file, s);)
 	{
-	    _instructions.push_back(s);
+        if (s != "")
+	        _instructions.push_back(s);
 	}
     }
 }
@@ -24,6 +26,8 @@ int Parser::parse(Program &program)
 {
     int err = 0;
     int count = 0;
+
+    map<int, string> labelRefs;
 
     for (auto instr : _instructions)
     {
@@ -61,6 +65,7 @@ int Parser::parse(Program &program)
 			{
 				Instruction instruction = {tokens[0], opcode, program._labels[tokens[1]]};
 				program._instructions.push_back(instruction);
+                labelRefs[program._instructions.size() - 1] = tokens[1];
 			}
 			else if (opcode == 0x16) //array
 			{
@@ -68,7 +73,7 @@ int Parser::parse(Program &program)
 
 				for (int i = 2; i < tokens.size(); ++i)
 				{
-					program._dataMemory[program._endOfMemory] = strtol(tokens[i].c_str(), NULL, 16);
+					program._dataMemory[program._endOfMemory] = strtol(tokens[i].c_str(), NULL, 10);
 					program._endOfMemory++;
 				}
 			}
@@ -77,23 +82,51 @@ int Parser::parse(Program &program)
 				Instruction instruction = {tokens[0], opcode, 0};
 				program._instructions.push_back(instruction);
 				program._labels[tokens[0]] = program._instructions.size() - 1;
+
+                if (instruction.mnemonic == "entry:")
+                    program._entryPoint = program._labels[tokens[0]];
 			}
-            else if (opcode == 0x08 || opcode == 0x12 || opcode == 0x13 || opcode == 0x15)
+            else if (opcode == 0x08 || opcode == 0x12 || opcode == 0x13 || opcode == 0x15) //not, push, pop, ret
             {
                 Instruction instruction = {tokens[0], opcode, 0};
 				program._instructions.push_back(instruction);
             }
-			else
+			else if (   opcode == 0x00 || opcode == 0x01 || opcode == 0x02 || opcode == 0x03 || opcode == 0x05 ||
+                        opcode == 0x0C || opcode == 0x0D || opcode == 0x0E || opcode == 0x0F || opcode == 0x10 || opcode == 0x11) //load, loadi, store, storei, addi, SEQ, SNE, SGT, SLT, SGE, SLE
 			{
-				Instruction instruction = {tokens[0], opcode, strtol(tokens[1].c_str(), NULL, 16)};
+                if (std::regex_match(tokens[1], std::regex("[(-|+)]?[0-9]+")))
+                {
+                    Instruction instruction = {tokens[0], opcode, strtol(tokens[1].c_str(), NULL, 10)};
+				    program._instructions.push_back(instruction);
+                }
+                else
+                {
+                    Instruction instruction = {tokens[0], opcode, program._labels[tokens[1]]};
+				    program._instructions.push_back(instruction);
+                }
+			}
+            else
+            {
+                Instruction instruction = {tokens[0], opcode, strtol(tokens[1].c_str(), NULL, 10)};
 				program._instructions.push_back(instruction);
-			}			
+            }		
 		}
 		else
 		{
 			err = -1;
 			break;
 		}
+    }
+
+    //update label refs to fix any references to labels defined later in code
+    for (int i = 0; i < program._instructions.size(); ++i)
+    {
+        string l = labelRefs[i];
+
+        if (l != "")
+        {
+            program._instructions[i].param = program._labels[l];
+        }
     }
 
     return err;
@@ -149,7 +182,7 @@ int Parser::encode(string mnemonic)
         opcode = 0x14;
     else if (mnemonic == "RET")
         opcode = 0x15;
-    else if (mnemonic == "ARRAY")
+    else if (mnemonic == "ARRAY" || mnemonic == "VAR")
         opcode = 0x16;
     else
         opcode = 0x17;

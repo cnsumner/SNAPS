@@ -19,6 +19,7 @@ class Program
   public:
     vector<Instruction> _instructions;
     vector<int> _dataMemory;
+    int _entryPoint;
     int _endOfMemory;
     map<string, int> _labels;
 

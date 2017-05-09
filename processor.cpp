@@ -83,12 +83,14 @@ void Processor::execute()
     }
     else if (opcode == 0x0A) //JUMP const
     {
-        //TODO: implement this
         PC = param;
+        cycleCount++;
+        return;
     }
     else if (opcode == 0x0B) //BZERO addr
     {
         PC = (accumulator == 0 ? param : PC + 1); //PC + 4
+        cycleCount++;
         return;
     }
     else if (opcode == 0x0C) //SEQ	addr
@@ -130,12 +132,14 @@ void Processor::execute()
         stackPtr--;
         stack[stackPtr] = PC + 1; //PC + 4
         PC = param;
+        cycleCount++;
         return;
     }
     else if (opcode == 0x15) //RET
     {
         PC = stack[stackPtr];
         stackPtr++; //stackPtr + 4
+        cycleCount++;
         return;
     }
     else if (opcode == 0x17)

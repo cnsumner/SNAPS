@@ -22,6 +22,7 @@ Processor::Processor(Program &program)
     accumulator = 0;
     stack = vector<int>(1028, 0);
     cycleCount = 0;
+    memAccessCount = 0;
     _program = program;
 }
 
@@ -42,24 +43,29 @@ void Processor::execute()
     if (opcode == 0x00) //LOAD addr
     {
         accumulator = _program._dataMemory[param];
+        memAccessCount++;
     }
     else if (opcode == 0x01) //LOADI addr
     {
         int addr = _program._dataMemory[param];
         accumulator = _program._dataMemory[addr];
+        memAccessCount += 2;
     }
     else if (opcode == 0x02) //STORE addr
     {
         _program._dataMemory[param] = accumulator;
+        memAccessCount++;
     }
     else if (opcode == 0x03) //STOREI addr
     {
         int addr = _program._dataMemory[param];
         _program._dataMemory[addr] = accumulator;
+        memAccessCount += 2;
     }
     else if (opcode == 0x04) //ADD addr
     {
         accumulator = accumulator + _program._dataMemory[param];
+        memAccessCount++;
     }
     else if (opcode == 0x05) //ADDI const
     {
@@ -68,10 +74,12 @@ void Processor::execute()
     else if (opcode == 0x06) //AND addr
     {
         accumulator = accumulator & _program._dataMemory[param];
+        memAccessCount++;
     }
     else if (opcode == 0x07) //OR addr
     {
         accumulator = accumulator | _program._dataMemory[param];
+        memAccessCount++;
     }
     else if (opcode == 0x08) //NOT
     {
@@ -80,6 +88,7 @@ void Processor::execute()
     else if (opcode == 0x09) //XOR addr
     {
         accumulator = accumulator ^ _program._dataMemory[param];
+        memAccessCount++;
     }
     else if (opcode == 0x0A) //JUMP const
     {
@@ -96,26 +105,32 @@ void Processor::execute()
     else if (opcode == 0x0C) //SEQ	addr
     {
         accumulator = (accumulator == _program._dataMemory[param] ? 1 : 0);
+        memAccessCount++;
     }
     else if (opcode == 0x0D) //SNE	addr
     {
         accumulator = (accumulator != _program._dataMemory[param] ? 1 : 0);
+        memAccessCount++;
     }
     else if (opcode == 0x0E) //SGT	addr
     {
         accumulator = (accumulator > _program._dataMemory[param] ? 1 : 0);
+        memAccessCount++;
     }
     else if (opcode == 0x0F) //SLT	addr
     {
         accumulator = (accumulator < _program._dataMemory[param] ? 1 : 0);
+        memAccessCount++;
     }
     else if (opcode == 0x10) //SGE	addr
     {
         accumulator = (accumulator >= _program._dataMemory[param] ? 1 : 0);
+        memAccessCount++;
     }
     else if (opcode == 0x11) //SLE	addr
     {
         accumulator = (accumulator <= _program._dataMemory[param] ? 1 : 0);
+        memAccessCount++;
     }
     else if (opcode == 0x12) //PUSH
     {
@@ -174,6 +189,8 @@ void Processor::info()
     }
     cout << "|-------------------------|" << endl;
     cout << "| Cycles: " << left << setw(15) << setfill(' ') << dec << cycleCount << " |" << endl;
+    cout << "|-------------------------|" << endl;
+    cout << "| Mem Access: " << left << setw(11) << setfill(' ') << dec << memAccessCount << " |" << endl;
     cout << "|-------------------------|" << endl;
 }
 
